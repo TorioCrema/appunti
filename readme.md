@@ -1,0 +1,1 @@
+Tutti i file .md sono scritti con la sintassi di [Obsidian](https://obsidian.md/)
