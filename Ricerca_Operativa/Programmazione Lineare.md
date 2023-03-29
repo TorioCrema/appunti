@@ -73,7 +73,7 @@ La variabile $x_r$ dopo essere stata aggiornata sara' nulla e la colonna $a_k$ s
 Si consideri il problema primale in forma canonica:
 $$
 \begin{array}{ll}
-	z_p=\text{min} & cx \\
+	z_P=\text{min} & cx \\
 	\text{s.t.} & Ax\ge b \\
 	& x\ge0
 \end{array}
