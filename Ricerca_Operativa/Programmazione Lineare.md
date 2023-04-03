@@ -97,7 +97,7 @@ $$
 	&x,x_s\ge0
 \end{array}
 $$
-Dove $I=[a_{n+1},..,a_{n+m}]=[e_1,\dots,e_m]$ e' la matrice identita' di ordine m, questo perche' le variabili di **slack** del problema appaiono nelle equazioni dei vincoli come $-1x_s$ se le disequazioni de vincoli nella forma canonica del problema avevano segno $\ge$. (Quindi per ottenere il duale dobbiamo prima riportare tutti i vincoli nella forma canonica al segno $\ge$ e trasformare il problema nella sua forma standard.)
+Dove $I=[a_{n+1},..,a_{n+m}]=[e_1,\dots,e_m]$ e' la matrice identita' di ordine m, questo perche' le variabili di **slack** del problema appaiono nelle equazioni dei vincoli come con coefficente $-1$ se le disequazioni de vincoli nella forma canonica del problema avevano segno $\ge$. (Quindi per ottenere il duale dobbiamo prima riportare tutti i vincoli nella forma canonica al segno $\ge$ e trasformare il problema nella sua forma standard.)
 In corrispondenza di una soluzione ottima del primale deve esistere una base $B$ per cui: $wa_j-c_j\le0, i=1,\dots,n+m$ dove $w=c_BB^{-1}$
 Riscrivendo la disequazione $wa_j-c_j\le0$ per le variabili originarie e quelle di slack si ha:
 $$wa_j\le c_j, j=1,\dots,n$$
@@ -126,3 +126,45 @@ dalle quali si derivano le seguenti osservazioni:
 - $a^ix>b_i\implies w_i=0$
 - $x_j>0\implies wa_j=c_j$
 - $wa_j<c_j\implies x_j=0$
+
+## Simplesso Formato Tableau
+Permette di semplificare le operazioni di aggiornamento della base, della corrispondente soluzione, e dei costi ridotti $wa_j-c_j$ ad ogni iterazione:
+$$
+\begin{array}{ll}
+	\text{min z}=  & cx_B+cx_N \\
+	\text{s.t.}& Bx_B+Nx_N = b \\
+	&x_B,x_N\ge0
+\end{array}
+$$
+che si puo' ridurre come:
+$$
+\begin{array}{ll}
+	\text{min}&\text{z} \\
+	&\text{z}- cx_B-cx_N=0 \\
+	& x_B+B^{-1}Nx_N = B^{-1}b \\
+	&x_B,x_N\ge0
+\end{array}
+$$
+Moltiplicando la seconda equazione per $c_B$ e sommandola per la prima si ottiene:
+$$
+\begin{array}{ll}
+	\text{min}&\text{z} \\
+	&\text{z} &+&0x_B &+& (c_BB^{-1}N-c_N)x_N &=& c_BB^{-1}b \\
+	&&& x_B&+&B^{-1}Nx_N &=& B^{-1}b \\
+	&&&x_B&,&x_N&\ge&0
+\end{array}
+$$
+Il risultato puo' essere inserito in un "tableau" come segue:
+$$
+\begin{array}{|c|c|}
+\hline
+& \text{z} & x_B & x_N & RHS \\ \hline
+\text{z} & 1 & 0 & c_BB^{-1}N-c_N & c_BB^{-1}b \\ \hline
+x_B      & 0 & I & B^{-1}N & B^{-1}b \\ \hline
+\end{array}
+$$
+dove il Right Hand Side (RHS) contiene il valore della funzione obiettivo e delle variabili base.
+In una versione di maggiore dettaglio il _"tableau"_ e' il seguente:
+![tableau](tableau.png)
+Come si puo' notare il tableau contiene tutte le informazioni necessarie per l'esecuzione dell'algoritmo del simplesso.
+L'operazione base e' il *==pivoting==*. Che permette a una nuova variabile di entrare in base e di aggiornare *correttamente* tutte le informazioni nel tableau (costi ridotti, valore variabili base, etc.).
