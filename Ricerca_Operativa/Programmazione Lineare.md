@@ -175,3 +175,71 @@ L'operazione base e' il *==pivoting==*. Che permette a una nuova variabile di en
 - Si divide la riga $i$ per $y^k_i$ (che sicuramente e' positivo).
 - Ad ogni riga $i' \ne i$ si aggiunge la riga $i$ moltiplicata per $-y^k_{i'}$
 - Alla riga $0$ si aggiunge la riga $i$ moltiplicata per $-(wa_k-c_k)$.
+### Come determinare una base iniziale
+#### Caso facile
+Se il problema di $n$ variabili e $m$ vincoli ha la seguente forma:
+$$
+\begin{array}{ll}
+z_P & = & \text{min}& cx \\
+&&\text{s.t.}&Ax \le b \\
+&&&x \ge 0
+\end{array}
+$$
+quando si aggiungono le $m$ variabili $x_s$ di ==slack== alle $n$ variabili originarie, il primale in forma standard e' il seguente:
+$$
+\begin{array}{ll}
+z_P & = & \text{min}& cx \\
+&&\text{s.t.}&Ax&+&Ix_s&=&b \\
+&&&x&,&x_s&\ge&0
+\end{array}
+$$
+dove $I=[e_1,\dots,e_m]$ e' la matrice identita' di ordine $m$, che senz'altro puo' essere una base $B=I$, la quale e' anche ammissibile se $b\ge0$.
+#### Metodo Big-M
+Se il problema ha la seguente forma
+$$
+\begin{array}{ll}
+z_P & = & \text{min}& cx \\
+&&\text{s.t.}&Ax = b \\
+&&&x \ge 0
+\end{array}
+$$
+non e' detto sia facile individuare una base $B$ tra le colonne di $A$.
+Nell'ipotesi che $b\ge0$, si possono aggiungere $m$ variabili $x_A$, dette *==artificiali==*, alle n variabili originarie, e risolvere il seguente problema:
+$$
+\begin{array}{ll}
+z_P & = & \text{min}& cx &+&Mx_A  \\
+&&\text{s.t.}&Ax&+&Ix_A&=&b \\
+&&&x&,&x_A&\ge&0
+\end{array}
+$$
+dove $I$ e' la matrice identita' di ordine $m$ e $M=MI$, con $M>0$ scelto *sufficientemente grande*.
+#### Metodo 2-Fasi
+Sia dato un problema della seguente forma:
+$$
+\begin{array}{ll}
+(P)&z_P&=&\text{min}&cx \\
+&&&\text{s.t.}&Ax&=&b\\
+&&&&x&\ge&0
+\end{array}
+$$
+Nell'ipotesi che $b\ge0$, si possono aggiungere $m$ variabili $x_A$, dette *==artificiali==*, alle $n$ variabili originarie, e risolvere il seguente problema:
+$$
+\begin{array}{ll}
+(P')&z_{P'} & = & \text{min}& 1x_A  \\
+&&&\text{s.t.}&Ax&+&Ix_A&=&b \\
+&&&x&,&x_A&\ge&0
+\end{array}
+$$
+dove $I$ e' la matrice identita' di ordine $m$ e $1=\{1,1,\dots,1\}$, e' un vettore di $m$ componenti tutte pari a $1$.
+In questo caso i problemi $P$ e $P'$ non sono equivalenti.
+Risolvere il problema $P'$ serve solo a determinare una soluzione base ammissibile per il problema $P$.
+Sia $(x^*,x_A^*)$ la soluzione ottima del problema $P'$ di valore $x_{P'}$. Si possono presentare tre casi:
+- $z_{P'}>0\implies$ il problema $P$ non ha una base ammissibile;
+- $z_{P'}=0$ e nessuna variabile artificiale e' base$\implies$ il problema $P$ ha una base ammissibile;
+- $z_{P'}=0$ e almeno una variabile artificiale e' in base$\implies$ il problema $P$ ha una base ammissibile, ma bisogna *estrarla*:
+---
+Se $x_{P'}=0$ e una variabile artificiale e' in base, per generare una base senza variabili artificiali e' necessario farla uscire.
+Questo caso si verifica quando la soluzione e' ==degenere==,ossia una variabile in base ha valore nullo:
+![Tableau di una soluzione degenere](tableau_degenere.png)
+se esiste un $y^j_i \ne 0$, allora possiamo ==pivotare== su questo coefficiente e la variabile $x_j$ entra in base al posto della variabile artificiale $x^A_h$.
+Se $y^j_i = 0$, per ogni $j=1,\dots,n$, allora possiamo eliminare dal tableau sia la riga $i$ che la colonna della variabile artificiale $x^A_h$.
