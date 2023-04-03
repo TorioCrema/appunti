@@ -168,3 +168,10 @@ In una versione di maggiore dettaglio il _"tableau"_ e' il seguente:
 ![tableau](tableau.png)
 Come si puo' notare il tableau contiene tutte le informazioni necessarie per l'esecuzione dell'algoritmo del simplesso.
 L'operazione base e' il *==pivoting==*. Che permette a una nuova variabile di entrare in base e di aggiornare *correttamente* tutte le informazioni nel tableau (costi ridotti, valore variabili base, etc.).
+### Operazione di Pivoting
+- Ad ogni iterazione si seleziona la variabile non base candidata ad entrare in base e si definisce con il criterio del rapporto minimo la variabile base che uscira':
+	- La variabile entrante si seleziona scegliendo la colonna che massimizza il *costo ridotto* $wa_k-c_k$ presente nella riga $0$.
+	- La variabile uscente si seleziona scegliendo la riga che minimizza il rapporto $\frac{\bar{b_i}}{y^k_i}$ con $y^k_i > 0$.
+- Si divide la riga $i$ per $y^k_i$ (che sicuramente e' positivo).
+- Ad ogni riga $i' \ne i$ si aggiunge la riga $i$ moltiplicata per $-y^k_{i'}$
+- Alla riga $0$ si aggiunge la riga $i$ moltiplicata per $-(wa_k-c_k)$.
