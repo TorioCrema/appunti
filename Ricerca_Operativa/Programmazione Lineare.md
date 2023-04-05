@@ -243,3 +243,68 @@ Questo caso si verifica quando la soluzione e' ==degenere==,ossia una variabile 
 ![Tableau di una soluzione degenere](tableau_degenere.png)
 se esiste un $y^j_i \ne 0$, allora possiamo ==pivotare== su questo coefficiente e la variabile $x_j$ entra in base al posto della variabile artificiale $x^A_h$.
 Se $y^j_i = 0$, per ogni $j=1,\dots,n$, allora possiamo eliminare dal tableau sia la riga $i$ che la colonna della variabile artificiale $x^A_h$.
+#### Degenerazione
+La ==degenerazione== si presenta quando alcuni $\bar{b_i}$ sono nulli.
+In caso di degenerazione, quando si applica il rapporto minimo, il valore da assegnare alla variabile entrante e' sempre nullo:
+$$
+x_k=\frac{\bar{b_r}}{y^k_r}=\text{min}\{\frac{\bar{b_i}}{y^k_i}:y^k_i>0,i=1,\dots,m\}=0
+$$
+Per cui cambia la base, ma non il punto estremo che coincide con il precedente. Il rischio e' che il metodo torni a *spostarsi* su una base gia' considerata nelle precedenti iterazioni.
+Si consideri il seguente esempio:
+![Problema degenerante](esempio_degenerazione.png)
+Il metodo potrebbe avere un ==ciclo== che coinvolge le basi associate ai tre punti estremi, A, B e C che corrispondono a tre diverse soluzioni base, ma coincidono.
+La ==Regola di Bland== stabilisce che per evitare la ==degenerazione ciclante== e' sufficiente scegliere tra le variabili candidate a entrare in base (i.e., $wa_j-c_j$ positivi) e quelle candidate a uscire dalla base (i.e. che soddisfano il criterio del rapporto minimo) quelle di indice minimo.
+Il metodo del simplesso, se implementa un metodo per evitare la degenerazione ciclante, nel caso peggiore deve generare tutte le possibili basi che sono un numero finito:
+$$
+\binom{n}{m}=\frac{n!}{m!(n-m)!}
+$$
+## Il Metodo del Simplesso Duale
+Il Simplesso primale, ad ogni iterazione, soddisfa:
+- L'ammissibilita' primale della soluzione: $\bar{b_r}\ge0$ per ogni $r$;
+- Le condizioni di Complementarieta'
+Il Metodo del Simplesso Duale, ad ogni iterazione, soddisfa:
+- L'ammissibilita' duale della soluzione: $wa_j-c_j\le0$ per ogni $j$;
+- Le condizioni di Complementarieta'
+Le Condizioni di Complementarieta' sono soddisfatte perche' le variabili $x_j$ che sono in base hanno $wa_j-c_j=0$ mentre quelle non in base hanno valore nullo ($x_j=0$).
+![Tableau Duale](tableau.png)
+Quando applichiamo il simplesso Duale dobbiamo avere che tutti i vincoli duali siano soddisfatti, quindi che $wa_j-c_j\le0$ per ogni $j$.
+Se tutte le variabili sono non negative la soluzione e' OTTIMA.
+Se invece almeno una variabile in base ha valore negativo (i.e. esiste almeno un $r$ tale che $\bar{b_r}<0$) allora dobbiamo farla diventare maggiore o uguale a 0.
+Se effettuiamo una operazione di pivoting sulla riga $r$ e su una qualunque colonna $k$ tale che $y^k_r<0$ allora nel nuovo tableau avremo $\bar{b_r}>0$, perche' $\bar{b_r}=\frac{\bar{b_r}}{y^k_r}$
+La colonna $k$ deve essere scelta in modo da conservare l'ammissibilita' duale: $wa_j-c_j\le0$ per ogni $j$.
+Quando pivotiamo sulla riga $r$ e la colonna $k$ la riga $0$ del tableau viene aggiornata come segue:
+$$
+(wa_j-c_j)=(wa_j-c_j)-\frac{y^j_r}{y^k_r}(wa_k-c_k)
+$$
+Per conservare l'ammissibilita' duale abbiamo bisogno che:
+$$
+(wa_j-c_j)-\frac{y^j_r}{y^k_r}(wa_k-c_k)\le0
+$$
+Siccome $\frac{(wa_k-c_k)}{y^k_r}\ge0$, se $y^j_r\ge0$ avremo che il valore aggiornato di $(wa_j-c_j)$ sara' sicuramente non positivo.
+Invece se $y^j_r<0$ avremo bisogno di soddisfare il seguente vincolo:
+$$
+\frac{wa_k-c_k}{y^k_r}=\text{min}\{\frac{wa_j-c_j}{y^j_r}:y^j_r<0,j=1,\dots,n\}
+$$
+### Algoritmo del Simplesso Duale
+- Step 1: Inizializzazione:
+	Sia **B** una base duale ammissibile: $wa_j-c_j=c_BB^{-1}a_j-c_j\le0$
+- Step 2: Determinazione riga $r$:
+	$\bar{b_r}=\text{min}\{\bar{b_i}:i=1,\dots,m\}$.
+	Se $\bar{b}\ge0$, allora STOP perche' la soluzione e' primale ammissibile e quindi ottima.
+- Step 3: Determinazione colonna $k$:
+	Applica il rapporto minimo:
+	$$\frac{wa_k-c_k}{y^k_r}=\text{min}\{\frac{wa_j-c_j}{y^j_r}:j=1,\dots,n\}$$
+	Se $y^j_r\ge0$, per ogni $j=1,\dots,n$, allora STOP perche' il duale e' illimitato e la soluzione ammissibile del primale non esiste.
+- Step 4: Pivoting
+	Svolge una operazione di pivoting sull'elemento $(r,k)$.
+	Ritorna allo step 2.
+#### NOTE
+- Il valore della funzione obiettivo $\text{z}=c_Bx_B=c_BB^{-1}b$ e' un lower bound.
+- Durante l'esecuzione del simplesso duale il valore della funzione obiettivo cresce in modo monotonico non descrescente, perche: $c_B\bar{b}=c_B\bar{b}-\frac{\bar{b_r}}{y^k_r}(wa_k-c_k)$
+- Come possiamo gestire il caso in cui la base non sia duale ammissibile (i.e., esiste almeno un $j$ per cui $wa_j-c_j>0$)?
+	Possiamo aggiungere il seguente vincolo artificiale:
+	$$\sum_{j\in N}x_j\le M\implies\sum_{j\in N}x_j+x_{n+1}=M$$
+	Dove $N$ e' l'insieme delle variabili non base ed $M\tilde{A}$ un valore positivo sufficientemente grande.
+	Dopodiche' si deve pivotare sulla colonna $k$ tale che:
+	$$wa_k-c_k=\text{max}\{wa_j-c_j:j\in N\}$$
+	Se al termine del simplesso duale $x_{n+1}>0$ la soluzione e' ottima, altrimenti se $x_{n+1}=0$ la soluzione e' illimitata.
