@@ -227,7 +227,7 @@ $$
 \begin{array}{ll}
 (P')&z_{P'} & = & \text{min}& 1x_A  \\
 &&&\text{s.t.}&Ax&+&Ix_A&=&b \\
-&&&x&,&x_A&\ge&0
+&&&&x&,&x_A&\ge&0
 \end{array}
 $$
 dove $I$ e' la matrice identita' di ordine $m$ e $1=\{1,1,\dots,1\}$, e' un vettore di $m$ componenti tutte pari a $1$.
