@@ -1,6 +1,6 @@
 # Programmazione Lineare
 ## Problema Primale
-### Trafromazione in forma standard
+### Trasformazione in forma standard
 Dal problema primale in forma canonica:
 $$
 \begin{array}{ll}
@@ -293,7 +293,7 @@ $$
 	Se $\bar{b}\ge0$, allora STOP perche' la soluzione e' primale ammissibile e quindi ottima.
 - Step 3: Determinazione colonna $k$:
 	Applica il rapporto minimo:
-	$$\frac{wa_k-c_k}{y^k_r}=\text{min}\{\frac{wa_j-c_j}{y^j_r}:j=1,\dots,n\}$$
+	$$\frac{wa_k-c_k}{y^k_r}=\text{min}\{\frac{wa_j-c_j}{y^j_r}:y^j_r<0,j=1,\dots,n\}$$
 	Se $y^j_r\ge0$, per ogni $j=1,\dots,n$, allora STOP perche' il duale e' illimitato e la soluzione ammissibile del primale non esiste.
 - Step 4: Pivoting
 	Svolge una operazione di pivoting sull'elemento $(r,k)$.
@@ -307,4 +307,4 @@ $$
 	Dove $N$ e' l'insieme delle variabili non base ed $M\tilde{A}$ un valore positivo sufficientemente grande.
 	Dopodiche' si deve pivotare sulla colonna $k$ tale che:
 	$$wa_k-c_k=\text{max}\{wa_j-c_j:j\in N\}$$
-	Se al termine del simplesso duale $x_{n+1}>0$ la soluzione e' ottima, altrimenti se $x_{n+1}=0$ la soluzione e' illimitata.
+	Se al termine del simplesso duale $x_{n+1}>0$ la soluzione e' ottima, altrimenti se $x_{n+1}=0$ (cioe' la variabile artificiale e' fuori dalla base) la soluzione e' illimitata.
