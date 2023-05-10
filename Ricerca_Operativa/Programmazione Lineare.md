@@ -788,3 +788,87 @@ dove $z_i,\;i\in I$ e' una variabile decisionale che rappresenta il numero di vo
 **Nota**: L'Algoritmo Column Generation risolve il rilassamento lineare del problema originario. Quindi, la soluzione puo' essere frazionaria.
 Nel caso di problema di Programmazione Lineare, l'algoritmo column generation determina la soluzione ottima del problema.
 Nel caso di problemi di Programmazione Intera, come il Cutting Stock Problem, l'algoritmo column generation applicato al rilassamento lieare del problema puo' terminare con una soluzione che risulta frazionaria. Usualmente i problemi classificati come Cutting Stock Problem richiedono di tagliare poche tipologie di oggetti in grandi quantità. In questo caso si può ottenere una soluzione euristica di ottima qualità applicando un semplice “rounding”. Per i problemi che richiedono di tagliare molte tipologie di oggetti in piccole quantità (*Bin Packing Problem*) il “rounding” può produrre soluzioni di qualità non adeguata. In questo caso è necessario applicare un algoritmo di tipo branch and bound per determinare la soluzione ottima intera. Per il calcolo del lower bound si può sempre utilizzare una tecnica *column generation*. Questi metodi prendono il nome di metodi *Branch and Price*.
+
+---
+### Travelling Salesman Problem
+Consideriamo il problema di un autista che deve fare le consegne visitando una e una sola volta un cliente. Possiamo rappresentare il problema utilizzando un grafo direzionato $G=(V,A)$, dove $V$ e' l'insieme dei vertici e $A$ e' l'insieme degli archi.
+I vertici $i\in V$ rappresentano i clienti da visitare e il deposito da cui partire e rientrare.
+Gli archi $(i,j)\in A$ rappresentano il tragitto dal vertice $i$ al vertice $j$, a cui e' associato un costo $c_{ij}$ (e.g. i chilometri da percorrere, il tempo di guida, etc.). Per semplicita' consideriamo il grafo completo.
+Si noti che in questo caso $c_{ij} \neq c_{ji}$, per cui parleremo di ==Asymmetric Travelling Salesman Problem==.
+Siano $x_{ij}$ delle variabili binarie uguali a $1$ se l'arco $(i,j)$ e' nella soluzione ottima, $0$ altrimenti.
+Un modello molto noto per il TSP asimmetrico e' il seguente:
+$$
+\begin{array}{ll}
+& z_{TSP} & = & \text{min} & \sum_{i\in V}\sum_{j\in V}c_{ij}x_{ij} \\
+& & & \text{s.t.} & \sum_{j\in V}x_{ij} & = & 1 \\
+& & & & \sum_{j\in V}x_{ji} & = & 1 \\
+& & & & \sum_{i\in S}\sum_{j\in \bar{S}}x_{ij}, & & \forall S\subset V, \bar{S}=V\setminus S & (*) \\
+& & & & x_{ij}\in\{0,1\}, & & (i,j)\in A
+\end{array}
+$$
+I vincoli $(*)$ sono detti ==subtour elimination==, peche' eliminano i sottocicli. Possono essere definiti anche in modo diverso.
+L'insieme degli archi $A(S,\bar{S}) = \{(i,j)\in A: i\in S, j\in \bar{S}\}$ e' detto ==taglio== determinato dagli insiemi $S$ e $\bar{S}$.
+Siccome i vincoli $(*)$ sono in numero esponenziale, invece di generarli tutti, si puo' risolvere il problema dell'assegnamento ottenuto ignorando questi vincoli.
+Una volta risolto il problema dell'assegnamento, basta identificare se esiste un ==sottociclo==. I vertici visitati dal sottociclo rappresentano un insieme $S$ il cui corrispondente vincolo $(*)$ e' violato.
+Si aggiunge il vincolo e si riottimizza il problema, che ora non e' piu' un semplice assegnamento e il suo rilassamento lineare puo' avere soluzioni frazionarie.
+Anche se le soluzioni sono frazionarie, e' comunque possibile determinare se c'e' un vincolo $(*)$ violato e identificare il corrispondente insieme $S$.
+Purtroppo, anche per trovare l’ottimo del rilassamento lineare del modello precedente può essere necessario generare molti vincoli. Inoltre, la soluzione del rilassamneto continuo può essere molto frazionaria e può avere un valore molto distante dal valore della soluzione ottima intera.
+Per cui, è necessario fare ricorso anche alle disuguglianze valide e di un metodo branch and bound, che in questo caso chiameremo ==branch and cut==.
+
+---
+## Teoria dei Grafi
+### Formulazione Matematica
+Sia dato un grafo direzionato $G=(N,A)$, in cui ad ogni archo $(i,j)\in A$ e' associato un costo $c_{ij}$ e una capacita' $u_{ij}$.
+Ad ogni vertice $i\in N$ e' associata una disponibilita' $b_i > 0$ oppure una richiesta $b_i < 0$ oppure $b_i = 0$.
+Il problema del flusso di costo minimo puo' essere formulato come segue:
+$$
+\begin{array}{ll}
+&\text{Min}\; z(P) & = & \sum_{i,j\in A}c_{ij}x_{ij} \\
+& & \text{s.t.} & \sum_{j\in\Gamma_i}x_{ij} - \sum_{j\in\Gamma^{-1}_i}x_{ji} & = & b_i, & i\in N \\
+& & & 0\le x_{ij}\le u_{ij}, & & & (i,j)\in A
+\end{array}
+$$
+dove $\Gamma_i = \{j:(i,j)\in A\}$ e $\Gamma^{-1}_i = \{j:(j,i)\in A\}$.
+
+### Problema Duale
+Al vincolo di conservazione del flusso corrispondente al nodo $i\in N$ e' associata una variabile duale $\pi_i$ e al vincolo di capacita' relativo all'arco $(i,j)\in A$ e' associata la variabile duale $\alpha_{ij}$.
+Il duale della formulazione $P$ del problema del flusso di costo minimo e' il seguente:
+$$
+\begin{array}{ll}
+&\text{Max}\; z(D) & = & \sum_{i\in N}b_i\pi_i - \sum_{(i,j)\in A}u_{ij}\alpha_{ij} \\
+& & \text{s.t.} & \pi_i - \pi_j - \alpha_{ij} \le c_{ij} & (i,j)\in A \\
+& & & \pi_i qualsiasi, & i \in N \\
+& & & \alpha_{ij} \ge 0, & (i,j) \in A
+\end{array}
+$$
+#### Assunzioni
+- Tutti i dati (i.e. costi, richieste/disponibilita' e capacita') sono valori interi.
+- Il grafo e' direzionato.
+- Le richieste e le disponibilita' dei diversi nodi soddisfano la condizione $\sum_{i\in N} b_i=0$.
+- Il problema di flusso di costo minimo ha una soluzione ammissibile.
+- Il grafo contiene un cammino diretto di capacita' infinita per ogni coppia di nodi.
+- Tutti i costi sono non negativi.
+
+#### Definizioni
+##### Parametri
+- $n = \lvert N \rvert$ e' il numero di nodi del grafo $G$;
+- $m = \lvert A \rvert$ e' il numero di archi del grafo $G$;
+- $U = \text{max}\{u_{ij}:(i,j)\in A\}$;
+- $C = \text{max}\{c_{ij}:(i,j)\in A\}$.
+
+##### Grafo residuo
+Il grafo residuo $G(x)$ corrispondente al flusso $x$ e' ottenuto sostituendo da ogni arco $(i,j) \in A$ con due archi $(i,j)$ e $(j,i)$ tali che:
+- Il loro costo e' pari a $c_{ij} = c_{ij}$ e $c_{ji} = -c_{ij}$.
+- La loro *capacita' residua* e' pari a $r_{ij} = u_{ij} - x_{ij}$ e $r_{ji} = x_{ij}$.
+
+#### Potenziali
+Denotiamo con $\pi_i \in \mathbb{R}$ il *potenziale* associato ad ogni nodo $i\in N$.
+Definiamo il *costo ridotto* $c_{ij}^\pi$ come segue:
+$$ c_{ij}^\pi = c_{ij} - \pi_i + \pi_j $$
+Si noti che il potenziale $\pi_i$ corrisponde anche alla variabile duale associata al vincolo di conservazione del flusso relativo al nodo $i\in N$.
+
+##### Proprieta' dei Potenziali
+Per ogni cammino diretto $P$ dal nodo $k$ al nodo $l$ si ha:
+$$ \sum_{(i,j)\in P}c^\pi_{ij} = \sum_{(i,j)\in P}c_{ij} - \pi_k + \pi_l $$
+Per ogni ciclo diretto $W$ si ha:
+$$ \sum_{(i,j)\in W}c^\pi_{ij} = \sum_{(i,j)\in W}c_{ij} $$
