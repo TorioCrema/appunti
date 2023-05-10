@@ -623,3 +623,168 @@ Lo spostamento $\theta$ puo' essere calcolato in diversi modi:
 $$\theta^*=\text{argmax}\{z_{LR}(\bar{\lambda}+\theta s): \theta > 0\}$$
 garantendo che $z_{LR}(\bar{\lambda}+\theta^*s)\ge(\bar{\lambda})$, pero' potrebbe essere molto costoso.
 - in modo euristico, solitamente valutando una semplice equazione, ma non puo' essere garantito che $z_{LR}(\bar{\lambda}+\theta^*s) \ge z_{LR}(\bar{\lambda})$
+
+Ad ogni iterazione $k$ del subgradiente lo spostamento $\theta^k$ puo' essere calcolato con uno dei seguenti approcci euristici:
+- *Polyak-type step size:*
+	$$\theta^k=\beta^k\frac{\bar{z}-z_{LR}(\lambda^k)}{\lVert s^k\rVert_2^2}$$
+	dove $\bar{z}$ e' una stima per difetto della soluzione ottima del Lagrangiano duale $z_{LR}$, i.e. $\bar{z}\le z_{LR}$. In questo caso, se $0 < \beta^k \le 2$ allora la convergenza di $z_{LR}(\lambda^k)$ a $z_{LR}$ e' garantita.
+	In alternativa si puo' sostituire $\bar{z}$ con un valido upper bound $z_{UB}$. Oppure si puo' sovrastimare $z_{LR}(\lambda^k)$ come segue:
+	$$\theta^k = \beta^k\frac{0.01\times z_{LR}(\lambda^k)}{\lVert s^k\rVert^2_2}$$
+	Il parametro $\beta^k$ puo' essere diminuito (e.g. dimezzato) se dopo un certo numero di iterazioni $z_{LR}(\lambda^k)$ non e' migliorato.
+
+Quando la penalita' Lagrangiana $\lambda_i$ e' aggiornata si deve tenere conto di eventuali vincoli sul segno:
+- $a_ix=b_i$: la penalita' $\lambda_i$ puo' essere qualsiasi:
+	$$\lambda^{k+1}_i=\lambda^k_i+\theta^ks_i$$
+- $a_ix\ge b$: la penalita' $\lambda_i$ deve essere non negativa:
+	$$\lambda^{k+1}_i=\text{max}\{0,\lambda^k_i+\theta^ks_i\}$$
+- $a_ix\le b$: la penalita' $\lambda_i$ deve essere non positiva:
+	$$\lambda^{k+1}_i=\text{min}\{0,\lambda^k_i+\theta^ks_i\}$$
+
+#### Algoritmo del Subgradiente
+- **Step 1.** Sia $z_P = \text{min}\{cx:Ax \le b, x \in X\}$, dove $A\in\mathbb{R}^{mn}, c \in\mathbb{R}^n$ e $b\in\mathbb{R}^m$. Poni $z_{LB}=-\infty, z_{UB}=+\infty$ e $\lambda = 0$.
+- **Step 2.** Risolvi in problema Lagrangiano:
+	$$z_{LR}(\lambda)=(c-\lambda A)\bar{x}+\lambda b=\text{min}\{(c-\lambda A)x+\lambda b:x\in X\}$$
+	e aggiorna li lower bound $z_{LB}=\text{max}\{z_{LB},z_{LR}(\lambda)\}$.
+- **Step 3.** Se $\bar{x}$ e' ammissibile $z_{UB} = \text{min}\{z_{UB}, c\bar{x}\}$ e se ottima STOP.
+- **Step 4.** Aggiorna le penalita' Lagrangiane:
+	$$
+	\begin{array}{}
+	&\lambda_i = \text{max}\{0,\lambda_i+\theta s_i\}, & i=1,\dots,m 
+	\end{array}
+	$$
+	dove $s_i = b_i-a_i\bar{x}$, e vai allo Step 2.
+
+#### Euristica Lagrangiana
+- **Step 1.** Calcola una soluzione euristica del problema P e inizializza il subgradiente;
+- **Step 2.** Calcola $z_{LR}(\lambda)$ ottenendo la soluzione $x$;
+- **Step 3.** Verifica l'ammissibilita' della soluzione $x$;
+- **Step 4.** Costruisci una soluzione ammissibile per il problema P utilizzando $x$ e/o $\lambda$;
+- **Step 5.** Se si verificano le condizioni di arresto allora STOP;
+- **Step 6.** Aggiorna le penalita' Lagrangiane $\lambda$ e vai allo Step 2.
+
+---
+## Metodi di Generazione di Colonne
+I metodi di generazione di colonne risolvono il problema senza considerare esplicitamente tutte le variabili. Si definisce un *core* iniziale che considera solo un sottoinsieme delle variabili, dopodiche' si aggiungono dinamicamente le variabili mancanti "necessarie" durante il processo di soluzione.
+Si consideri il seguente problema di programmazione lineare:
+$$
+\begin{array}{ll}
+& z_P &=&\text{min}&cx \\
+&&&\text{s.t.}&Ax&=&b\\
+&&&&x&\ge&0
+\end{array}
+$$
+Il problema duale e' il seguente:
+$$
+\begin{array}{ll}
+&z_D&=&\text{max}&wb \\
+&&&\text{s.t.}&wA&\le&c
+\end{array}
+$$
+Il simplesso primale esegue iterativamente le seguenti operazioni:
+- Selezione di una colonna $s$ di $A$ (*variabile entrante*);
+- Selezione di una riga $r$ di $A$ (*variabile uscente*);
+- Esecuzione di un' operazione di pivoting sull'elemento pivot $a_{rs}$
+
+Sia $B$ una base della matrice dei vincoli $A$.
+Possiamo definire le seguenti entita':
+- $w=c_BB^{-1}$: variabili duali associate alla base $B$;
+- $\bar{b}=B^{-1}b$: valore delle variabili in base;
+- $a_j$: colonna $j$ della matrice $A$;
+- $\bar{c}_j=wa_j-c_j$: costo ridotto associato alla variabile $x_j$;
+- $\bar{y}_j=B^{-1}a_j$: colonna $j$ della matrice $B^{-1}A$.
+
+Le operazioni del metodo del simplesso primale possono essere riassunte come segue:
+
+|  | Simplesso Primale |  
+| ----------- | :-----------: |  
+| Test di ottimalita' | $\bar{c}_j=wa_j-c_j\le0,j=1,\dots,m$ |  
+| Variabile entrante | $s=\text{argmax}\{\bar{c}_j:j=1,\dots,n\}$ |
+| Variablile uscente | $r=\text{argmin}\{\frac{\bar{b}_i}{\bar{y}_{is}}>0,i=1,\dots,m\}$ |
+| Elemento di pivoting | $\bar{y}_{rs}$ |
+
+### Algoritmo Colunm Generation
+Si consideri il seguente problema di programmazione lineare:
+$$
+\begin{array}{ll}
+&z(P)&=&\text{min}&\sum^n_{j=1}c_jx_j \\
+&&&\text{s.t}&\sum^n_{j=1}a_{ij}x_j=b_i, & i=1,\dots,m \\
+&&&&x_j\ge0,&j=1,\dots,n
+\end{array}
+$$
+Data una base $B$, di $A$, la corrispondente soluzione base puo' essere migliorata se esiste una colonna $h$ tale che $\bar{c}_h>0$, dove:
+$$\bar{c}_h=\text{max}\{\bar{c}_j=wa_j-c_j:j=1,\dots,n\} > 0$$
+Ad ogni iterazione e' necessario determinare se esiste una colonna $a_h$ di costo $c_h$ tale che $\bar{c}_h=wa_h-c_h > 0$ risolvendo il *problema di pricing*:
+$$\bar{c}_h=\text{max}\{\bar{c}_j=wa_j-c_j:j=1,\dots,n\} > 0$$
+L'applicazione del simplesso puo' risultare proibitiva se il numero di colonne e' elevato.
+In alcuni casi la struttura del problema di pricing e' tale da consentire la soluzione senza considerare esplicitamente tute le variabili (colonne) del problema originario.
+Il metodo prende il nome di *generazione di colonne* perche' nella soluzione del problema di pricing le variabili (colonne) del problema vengono generate solo quando servono.
+
+- **Step 1.** Definisci una base ammissibile iniziale $B$;
+- **Step 2.** Calcola la soluzione base corrispondente a $B$:
+	$$x=(x_B,0)=(B^{-1},0)$$
+	e la corrispondente soluzione duale:
+	$$w=c_BB^{-1}$$
+- **Step 3.** Risolvi il problema di pricing, generando la variabile $h$ di costo ridotto $\bar{c}_h=wa_h-c_h$ massimo;
+- **Step 4.** Se il costo ridotto $\bar{c}_h\le0$ allora STOP: la soluzione e' ottima e non e' necessario generare altre colonne; altrimenti calcola la nuova base $B$ e vai allo Step 2.
+
+![Schema di funzionamento dell'algoritmo Column Generation](column_generation.png)
+
+---
+### Cutting Stock Problem
+#### Descrizione del Problema
+Sia $I$ un insieme di $n$ oggetti ognuno dei quali di lunghezza pari a $l_i,i=1,\dots,n$
+Sia $n_i$ il numero di pezzi che si devono produrre per ogni oggetto $i,i=1,\dots,n$.
+Sia $L$ la lunghezza delle barre (*master*) dalle quali tagliare gli oggetti necessari.
+Una *configurazione di taglio (pattern)* $k$ e' una possibile configurazione di taglio di un sottoinsieme di oggetti $I_k\subseteq I$ da una barra master (i.e. $\sum_{i\in I_k}a_{ik}l_i\le L$, dove $a_{ik}$ e' il numero di oggetti $i$ nel pattern $k$).
+#### Formulazione Matematica del Problema
+Sia $J$ l'insieme degli indici di tutte le possibili configurazioni di taglio.
+Sia inoltre $a_{ij}$ il numero di volte in cui l'oggetto $i$ e' tagliato nella configurazione $j,i\in I,j\in J$.
+L'obiettivo del problema e' quello di tagliare dalle barre tutti i pezzi necessari minimizzando il numero di barre necessarie.
+Sia $y_j$ una variabile intera non negativa che rappresenta il numero di volte in cui la configurzione $j\in J$ e' usata per tagliare dei pezzi.
+La formulazione matematica del problema e' la seguente:
+$$
+\begin{array}{ll}
+&z_P&=&\text{min}&\sum_{j\in J}y_j \\
+&&&\text{s.t.}&\sum_{j\in J}a_{ij}y_j&\ge&n_i,&i\in I \\
+&&&&y_j&\ge&0\text{ intero},&j\in J &(*)
+\end{array}
+$$
+Si noti che la cardinalita' dell'insieme $J$ puo' essere grande.
+Il rilassamento lineare (LP) del problema P lo si ottiene sostituendo i vincoli $(*)$ con i seguenti:
+$$y_j\ge0, j\in J$$
+Sia $LP'$ il problema ottenuto da $LP$ sostituendo l'insieme $J$ delle configurazioni con il sottoinsieme $J' \subset J$ (si supponga che $J'$ sia tale da garantire che $LP'$ ammette una soluzione ammissibile).
+Si risolva il problema $LP'$ e siano $w_i,i\in I$, le variabili duali associate ai vincoli di $LP'$.
+Il costo ridotto di ogni configurazione $j\in J$ e' dato da:
+$$\bar{c}_j=\sum_{i\in I}a_{ij}w_i-1$$
+Se esiste almeno una configurazione non contenuta in $J'$ di costo ridotto positivo, i.e.:
+$$\mathop{\text{max}}_{j\in J\setminus J'}[\bar{c}_j]>0$$
+allora la soluzione base corrente non e' ottima per $LP$.
+Siccome i costi ridotti $\bar{c}_j,\;j\in J'$, sono non positivi:
+$$\mathop{\text{max}}_{j\in J\setminus J'}\left\{ \sum_{i\in I}a_{ij}w_i-1\right\}=\mathop{\text{max}}_{j\in J\setminus J}\left\{ \sum_{i\in I}a_{ij}w_i-1\right\}$$
+che equivale a risolvere il seguente problema:
+$$
+\begin{array}{ll}
+&z_{SP}&=&\text{max}&\sum_{i\in I}w_iz_i-1 \\
+&&&\text{s.t.}&\sum_{i\in I}l_iz_i\le L \\
+&&&&z_i\ge0,\;\text{intero},&i\in I
+\end{array}
+$$
+dove $z_i,\;i\in I$ e' una variabile decisionale che rappresenta il numero di volte in cui l'oggetto $i$ e' tagliato nella *nuova configurazione*.
+
+#### Algoritmo Column Generation per Cutting Stock Problem
+- **Step 1.** Si generi un insieme iniziale $J'$ di configurazioni di taglio in modo che il problema $LP'$ abbia una soluzione ammissibile;
+- **Step 2.** Si risolva il problema $LP'$ definito sull'insieme di configurazioni $J'$. Sia $y^*$ la soluzione ottima primale e sia $w^*$ la corrispondente soluzione duale;
+- **Step 3.** Si risolva il seguente problema di knapsack intero:
+	$$
+	\begin{array}{ll}
+	&z_{SP}&=&\text{max}&\sum_{i\in I}w^*_iz_i \\
+	&&&\text{s.t.}&\sum_{i\in I}l_iz_i\le L \\
+	&&&&z_i\ge0,\;\text{intero},&i\in I
+	\end{array}
+	$$
+	Sia $z^*$ la soluzione ottima di $SP$;
+- **Step 4.** Se $\sum_{i\in I}w^*_iz^*_i\le1$ allora STOP: $x^*$ e' la soluzione ottima; altrimenti aggiungi a $J'$ la colonna (nuova configurazione) data dalla soluzione $z^*$ e vai allo Step 2.
+
+**Nota**: L'Algoritmo Column Generation risolve il rilassamento lineare del problema originario. Quindi, la soluzione puo' essere frazionaria.
+Nel caso di problema di Programmazione Lineare, l'algoritmo column generation determina la soluzione ottima del problema.
+Nel caso di problemi di Programmazione Intera, come il Cutting Stock Problem, l'algoritmo column generation applicato al rilassamento lieare del problema puo' terminare con una soluzione che risulta frazionaria. Usualmente i problemi classificati come Cutting Stock Problem richiedono di tagliare poche tipologie di oggetti in grandi quantità. In questo caso si può ottenere una soluzione euristica di ottima qualità applicando un semplice “rounding”. Per i problemi che richiedono di tagliare molte tipologie di oggetti in piccole quantità (*Bin Packing Problem*) il “rounding” può produrre soluzioni di qualità non adeguata. In questo caso è necessario applicare un algoritmo di tipo branch and bound per determinare la soluzione ottima intera. Per il calcolo del lower bound si può sempre utilizzare una tecnica *column generation*. Questi metodi prendono il nome di metodi *Branch and Price*.
