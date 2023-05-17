@@ -872,3 +872,119 @@ Per ogni cammino diretto $P$ dal nodo $k$ al nodo $l$ si ha:
 $$ \sum_{(i,j)\in P}c^\pi_{ij} = \sum_{(i,j)\in P}c_{ij} - \pi_k + \pi_l $$
 Per ogni ciclo diretto $W$ si ha:
 $$ \sum_{(i,j)\in W}c^\pi_{ij} = \sum_{(i,j)\in W}c_{ij} $$
+
+##### Condizioni di Ottimalita'
+- ==Assenza di Cicli di Costo Negativo==
+	La soluzione $x^*$ e' ottima se e solo se il grafo residuo $G(x^*)$ non contiene cicli di costo negativo.
+- ==Costi Ridotti Positivi==
+	La soluzione $x^*$ e' ottima se e solo se e' possibile trovare dei *potenziali* $\pi$ tali che per ogni arco $(i,j)$ di $G(x^*)$ soddisfano la seguente condizione:
+	$$c^{\pi}_{ij}=c_{ij}-\pi_i+\pi_j\ge0$$
+- ==Relazione degli Scarti Complementari==:
+	La soluzione $x^*$ e' ottima se e solo se e' possibile trovare dei *potenziali* $\pi$ tali che per ogni arco $(i,j)\in A$ il *costo ridotto* $c_{ij}^\pi$ soddisfa le seguenti condizioni degli scarti complementari:
+	$$
+	\begin{array}{ll}
+	& \text{If}\;c_{ij}^\pi>0, & \text{then}\;x^*_{ij}=0 \\
+	& \text{If}\;c_{ij}^\pi=0, & \text{then}\;0\le x^*_{ij}\le u_{ij} \\
+	& \text{If}\;c_{ij}^\pi<0, & \text{then}\;x^*_{ij}=u_{ij} \\
+	\end{array}
+	$$
+
+
+### Cycle Cancelling Algorithm
+L'algoritmo si basa sulla seguente osservazione: "se nel grafo $G(x)$ edentifico un ciclo $W$ di costo negativo, allora posso aumentare il flusso in $W$ diminuendo il costo complessivo della soluzione".
+![Pseudocodice cycle cancelling algorithm](cycle_cancelling.png)
+L'algoritmo mantiene ad ogni passo l'ammissibilita' della soluzione e cerca di ottenere il soddisfacimento delle condizioni di ottimalita'.
+#### Calcolo di un flusso ammissibile
+Un flusso ammissibile puo' essere calcolato risolvendo un problema di flusso massimo sul grafo $G'$ costruito come segue:
+- Aggiungiamo a $G$ due nuovi nodi $s$ e $t$;
+- Per ogni nodo $i \in N$ con $b_i>0$ aggiungiamo un *arco sorgente $(s,i)$* con capacita' $u_{si} = b_i$;
+- Per ogni nodo $i \in N$ con $b_i < 0$ aggiungiamo un *arco destinazione $(i,t)$* con capacita' $u_{it} = -b_i$.
+
+Se il flusso massimo da $s$ a $t$ calcolato satura tutti gli archi sorgente e destinazione, allora il flusso trovato e' ammissibile per il grafo $G$, altrimenti per $G$ non puo' esistere un flusso ammissibile.
+
+#### Identificazione di un ciclo di costo negativo
+Per identificare un ciclo $W$ di costo negativo in $G(x)$ si puo' usare un algoritmo di tipo "label-correcting" per il calcolo del cammino di costo minimo (per esempio l'algoritmo di Bellman-Ford).
+
+#### Complessita' Computazionale
+Nel caso peggiore il Cycle Cancelling Algorithm esegue $O(mCU)$ iterazioni.
+Ad ogni iterazione l’algoritmo risolve il problema del cammino di costo minimo con costi qualsiasi per identificare un ciclo di costo negativo.
+Nel caso in cui sia utilizzato Bellman-Ford, la ricerca di un ciclo di costo negativo ha complessità pari a $O(nm)$.
+Quindi, nel caso sia impiegato Bellman-Ford, la complessità computazionale del Cycle Cancelling Algorithm è pari a $O(nm^2CU)$.
+
+### Successive Shortest Path Algorithm
+L'algoritmo ad ogni passo mantiene soddisfatte le condizioni di non negativita' dei costi ridotti e i vincoli di capacita', mentre cerca di soddisfare i vincoli di conservazione del flusso:
+$$\sum_{j\in \Gamma_i}x_{ij}-\sum_{j\in \Gamma^{-1}_i}x_{ji}=b_i$$
+Il flusso $x$ sara' ammissibile solo al termine dell'algoritmo e quindi nelle fase intermedie diremo che $x$ e' uno *pseudoflusso*. Inoltre, per ogni nodo $i$ definiamo:
+$$e_i = b_i - \sum_{j\in \Gamma_i}x_{ij}+\sum_{j\in \Gamma^{-1}_i}x_{ji}$$
+#### Lemma
+Sia $x$ un pseudoplusso che soddisfa le condizioni di non negativita' dei costi ridotti per un qualche $\pi$, i.e. $c^\pi_{ij} =c_{ij}-\pi_i+\pi_j \ge 0,\; \forall(i,j)\in G(x)$.
+Sia $d=(d_1,\dots,d_n)$ la distanza minima in $G(x)$ da un nodo $s$ a tutti gli altri nodi rispetto ai costi ridotti $c^\pi_{ij}$. Le seguenti proprieta' sono valide:
+- Il pseudoflusso $x$ soddisfa le condizioni di non negativita' dei costi ridotti anche per i potenziale $\pi'=\pi - d$;
+- I costi ridotti $c^{\pi'}_{ij}$ sono tutti nulli per tutti gli archi $(i,j)$ nel cammino minimo da $s$ a ogni altro nodo.
+
+#### Lemma
+Sia $x$ un pseudoflusso che soddisfa le condizioni di non negativita' dei costi ridotti per un qualche potenziale $\pi$.
+Se $x'$ e' il pseudoflusso ottenuto da $x$ aumentando il flusso lungo il cammino di costo minimo da $s$ a un altro nodo k, allora anche $x'$ soddisfa le condizioni di non negativita' dei costi ridotti per un qualche $\pi'$ per un qualche $\pi'$, e.g. $\pi' = \pi - d$.
+Il Lemma suggerisce la senguente strategia: "Ad ogni iterazione l'algoritmo deve selezionare un nodo $s$ con un *eccesso* di flusso, i.e. $e_s>0$, e un nodo $t$ con *deficit* di flusso, i.e. $e_t < 0$, e aumentare il fluso lungo il cammino di costo minimo da $s$ a $t$ nel grafo $G(x)$".
+Si noti che nel calcolo del cammno di costo minimo si impiegano i costi ridotti $c^\pi_{ij}$ che sono positivi. Pertanto, puo' essere utilizzato Dijkstra.
+
+![](successive_shortest.png)
+
+#### Complessita' computazionale
+Nel caso peggiore il Successive Shortest Path Algorithm esegue $O(nU)$ iterazioni. Ad ogni iterazione l'algoritmo risolve il problema del cammino di costo minimo con costi positivi o uguali a zero (i.e., non-negativi). Nel caso sia utilizzato Dijkstra con Fibonacci Heap la complessita' del calcolo dei cammini di costo minimo e' pari a $O(m+n\log n)$. Nel caso sia impiegato Dijkstra con Fibonacci Heap, la complessità computazionale complessiva del Successive Shortest Path Algorithm è pari a $O(nU(m + n \log n))$.
+
+### Primal Dual Algorithm
+L’algoritmo primale-duale per la soluzione del problema del flusso di costo minimo è simile al Successive Shortest Path Algorithm, in quanto anch’esso mantiene un pseudoflusso che soddisfa le condizioni di non negatività dei costi ridotti e i vincoli di capacità, mentre i vincoli di conservazione del flusso sono soddisfatti solo al raggiungimento della soluzione ottima.
+
+L’algoritmo primale-duale prevede di trasformare il problema originale in modo tale da avere un solo nodo con un eccesso di flusso e un solo nodo con un deficit di flusso. Quindi il grafo viene modificato come segue:
+- Aggiungiamo a $G$ due nuovi nodi $s$ e $t$;
+- Per ogni nodo $i \in N$ con $b_i > 0$ aggiungiamo un *arco sorgente $(s,i)$* con capacita' $u_{si} = b_i$;
+- Per ogni nodo $i \in N$ con $b_i < 0$ aggiungiamo un *arco destinazione $(i,t)$* con capacita' $u_{it} = -b_i$;
+- Poniamo $b_s=\sum_{i\in N^+}b_i$, dove $N^+=\{i\in N:b_i>0\},\;b_t=-b_s$ e $b_i=0$ per ogni $i \in N$.
+
+#### Grafo ammissibile
+Siano dati i potenziali $\pi$. Il *grafo ammissibile* $G^a(x)$ e' un sottografo di $G(x)$ che contiene solo gli archi $(i,j)$ di $G(x)$ di costo ridotto nullo, i.e. $c^\pi_{ij}=0$. La capacita' residua $r_{ij}$ e' la stessa del corrispondente arco i $G(x)$.
+
+![](primal_dual.png)
+
+#### Complessita' computazionale
+Nel caso peggiore l’algoritmo primale duale esegue un numero di iterazioni pari a $O(min\{nU, nC\})$ .Ad ogni iterazione l’algoritmo risolve un problema del cammino di costo minimo con costi non negativi e un problema del flusso massimo. Nel caso sia utilizzato Dijkstra con Fibonacci Heap la complessità del calcolo dei cammini di costo minimo è pari a $O(m + n \log n)$. Nel caso sia utilizzato l’Highest-Label Preflow-Push la complessità del calcolo del flusso massimo è pari a $O(n^2\sqrt{m})$.
+Quindi, nel caso sia impiegato Dijkstra con Fibonacci Heap e l’HighestLabel Preflow-Push, la complessità computazionale dell’algoritmo primale duale è pari a $O((min\{nU, nC\})((m + n \log n) + (n^2\sqrt{m})))$.
+
+### Out-of-Kilter Algorithm
+L’algoritmo Out-of-Kilter mantiene soddisfatti i vincoli di conservazione del flusso ad ogni nodo i ∈ N, mentre consente la violazione sia delle condizioni di ottimalità che dei vincoli di capacità degli archi $(i, j) ∈ A$.
+L’algoritmo iterativamente modifica il flusso $x$ e i potenziali $π$, in modo da diminuire la non ammissibilità della soluzione e convergere alla soluzione ottima.
+Ricordiamo che la soluzione $x^∗$ è ottima se e solo se è possibile trovare dei potenziali $π$ tali che per ogni arco $(i, j) ∈ A$ il corrispondente costo ridotto $c^π_{ij}$ soddisfa le seguenti condizioni degli scarti complementari:
+$$
+	\begin{array}{ll}
+	& \text{If}\;c_{ij}^\pi>0, & \text{then}\;x^*_{ij}=0 \\
+	& \text{If}\;c_{ij}^\pi=0, & \text{then}\;0\le x^*_{ij}\le u_{ij} \\
+	& \text{If}\;c_{ij}^\pi<0, & \text{then}\;x^*_{ij}=u_{ij} \\
+	\end{array}
+	$$
+
+Se un arco $(i, j) ∈ A$ soddisfa le condizioni di ottimalità diremo che è *in-kilter*, mentre se non le soddisfa diremo che è o*ut-of-kilter*.
+
+#### Kilter Number
+Il Kilter Number $k_{ij} ≥ 0$ indica di quanto deve essere modificato il flusso $x_{ij}$ per rendere in-kilter l’arco $(i, j) ∈ A$ rispetto al costo ridotto $c^π_{ij}$:
+$$
+	\begin{array}{ll}
+	& \text{If}\;c_{ij}^\pi>0, & \text{then}\;k_{ij}=\lvert x_{ij}\rvert \\
+	& \text{If}\;c_{ij}^\pi=0\;\text{and}\; x_{ij} >u_{ij} \, & \text{then}\;k_{ij}=x_{ij}-u_{ij} \\
+	& \text{If}\;c_{ij}^\pi=0\;\text{and}\; x_{ij} <0, & \text{then}\;k_{ij}=-x_{ij} \\
+	& \text{If}\;c^\pi_{ij}<0, & \text{then}\;k_{ij}=\lvert u_{ij}-x_{ij}\rvert \\
+	\end{array}
+	$$
+Il kilter number $k_{ij}$ indica il livello di non ammissibilita' dell'arco $(i,j) \in A$.
+L’algoritmo Out-Of-Kilter ad ogni iterazione individua un arco $(i, j) ∈ A$ out-of-kilter e riduce di una quantità positiva il corrispondente kilter number $k_{ij}$ senza dover aumentare il kilter number degli altri nodi.
+Se facciamo l’assunzione di avere un flusso iniziale ammissibile, allora la definizione del kilter number per ogni arco $(i, j) ∈ A$ si riduce a:
+$$
+k_{ij}=
+\begin{cases}
+0, & \text{If}\;c^\pi_{ij}\ge0 \\
+r_{ij}, & \text{If}\;\pi_{ij}<0
+\end{cases}
+$$
+![](out_of_kilter.png)
+#### Complessita' computazionale
+Nel caso peggiore l’algoritmo Out-Of-Kilter esegue un numero di iterazioni pari a $O(mU)$. Ad ogni iterazione l’algoritmo risolve il problema del cammino di costo minimo con costi non negativi. Nel caso sia utilizzato Dijkstra con Fibonacci Heap la complessità del calcolo dei cammini di costo minimo è pari a $O(m + n \log n)$. Nel caso sia impiegato Dijkstra con Fibonacci Heap, la complessità computazionale dell’algoritmo Out-Of-Kilter è pari a $O(mU(m + n \log n))$.
