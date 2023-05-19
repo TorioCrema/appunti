@@ -988,3 +988,106 @@ $$
 ![](out_of_kilter.png)
 #### Complessita' computazionale
 Nel caso peggiore l’algoritmo Out-Of-Kilter esegue un numero di iterazioni pari a $O(mU)$. Ad ogni iterazione l’algoritmo risolve il problema del cammino di costo minimo con costi non negativi. Nel caso sia utilizzato Dijkstra con Fibonacci Heap la complessità del calcolo dei cammini di costo minimo è pari a $O(m + n \log n)$. Nel caso sia impiegato Dijkstra con Fibonacci Heap, la complessità computazionale dell’algoritmo Out-Of-Kilter è pari a $O(mU(m + n \log n))$.
+
+### Algoritmi Polinomiali
+Per ottenere degli algoritmi poliomiali per risolvere il problema del flusso di costo minimo possono essere utilizzate delle tecniche di *scaling*.
+#### Capacity Scaling Algorithm
+Il Capacity Scaling Algorithm e' una variante del Successive Shortest Path Algorithm in cui ad ogni iterazione viene garantito che la capacita' residua del *cammino aumentante* sia "sufficientemente grande".
+Viene definito un parametro $\vartriangle$ e ad ogni iterazione:
+- si selezionano i nodi $s$ e $t$ tali che $e_s \ge \vartriangle$ e $e_t \le -\vartriangle$;
+- si sostituisce il grafo residuo $G(x)$ con il suo sottografo $G(x, \vartriangle)$ contenente solo quegli archi di capacita' residua pari almeno a $\vartriangle$.
+
+Quando non e' piu' possibile determinare una coppia di vertici $s$ e $t$ tali che $e_s \ge \vartriangle$ e $e_t \le -\vartriangle$, allora si diminuisce il parametro $\vartriangle$, i.e. $\vartriangle = \frac{\vartriangle}{2}$. Se $\vartriangle = 1$ allora il flusso $x$ corrente e' ottimo.
+
+##### Complessita' computazionale
+Se si inizializza $\vartriangle = 2^{\lfloor \log U\rfloor}$ allora il Capacity Scaling Algorithm nel caso peggiore eseguira' $O(m\log U)$ iterazioni.
+Quindi, nel caso sia impiegato Dijkstra con Fibonacci Heap, la complessità computazionale complessiva del Capacity Scaling Algorithm è pari a $O((m \log U)(m + n \log n))$.
+
+### Algoritmi Fortemente Polinomiali
+Algoritmi fortemente polinomialiper risolvere il problema del flusso di costo minimo possono essere ottenuti modificando il Cycle Cancelling Algorithm e il Capacity Scaling Algorithm.
+
+#### Minimum Mean Cycle Cancelling Algorithm
+Il Minimum Mean Cycle Cancelling Algorithm e' un caso particolare del Cycle Cancelling Algorithm in cui a ogni iterazione il flusso e' aumentato nel ciclo $W$ di costo negativo del grafo $G(x)$ che ha *costo medio minimo*. Il costo medio di un ciclo $W$ e dato da
+$$\frac{\sum_{(i,j)\in W}c_{ij}}{\rvert W\lvert}$$
+
+##### Complessita' computazionale
+Per calcolare il ciclo W di costo medio minimo può essere impiegata una procedura di programmazione dinamica di complessità $O(nm)$.
+La complessità computazionale del Minimum Mean Cycle Cancelling Algorithm è pari a $O(n^2m^3 \log n)$.
+
+#### Enhanced Capacity Scaling Algorithm
+L'Enhanced Capacity Scaling Algorithm e' una variante del Capacity Scaling Algorithm ed e' basato sul seguente lemma:
+Quando il Capacity Scaling Algorithm aggiorna il parametro $\vartriangle$, i.e. $\vartriangle = \frac{\vartriangle}{2}$, se nell'arco $(i,j)$ il flusso e' tale che $x_{ij}\ge 8n\vartriangle$ allora:
+- in qualsiasi soluzione ottima $x_{ij}>0$
+- il costo ridotto $c^\pi_{ij}$ e' sempre nullo comunque siano scelti i potenziali $\pi$ ottimi.
+
+Quando l'aloritmo identifica un arco $(i,j)$ tale che $x_{ij} \ge 8n\vartriangle$, allora i potenziali dei nodi $i$ e $j$ possono essere fissati. Quindi, l'arco $(i,j)$ viene "contratto" e i nodi $i$ e $j$ sono sostituiti da un nuovo nodo. L'operazione di contrazione da origine a un nuovo problema di flusso di costo minimo con un nodo in meno.
+L'algoritmo non effettua le operazioni di contrazione esplicitamente ed e' in grado di procedere senza dover ricalcolare i flussi e i potenziali per il nuovo problema ridotto.
+
+##### Complessita' computazionale
+La complessità computazionale dell’Enhanced Capacity Scaling Algorithm è pari a $O((m \log n)(m + n \log n)$).
+
+### Flusso Massimo
+- Sia dato un grafo direzionato $G=(N,A)$, in cui ad ogni arco $(i,j)\in A$ e' associata una capacita' $u_{ij} > 0$.
+- Si vuole determinare il ==flusso massimo== che puo' esere inviato dal vertice origine $s\in N$ al vertice destinazione $t\in N$.
+- Il problema del flusso massimo puo' essere formulato come segue:
+$$
+\begin{array}{ll}
+\text{Max}\; z(P) & = & v \\
+\text{s.t.} & & \sum_{j\in \Gamma_i}x_{ij}-\sum_{j\in \Gamma^{-1}_i}x_{ij}=\begin{cases}v, & i=s\\-v, & i=t & i\in N\\0, & i\neq s,t\end{cases} \\
+& & 0 \le x_{ij}\le u_{ij},\; (i,j) \in A
+\end{array}
+$$
+dove $\Gamma_i = \{j: (i,j)\in A\}$ and $\Gamma^{-1}_i = \{j: (j,i) \in A\}$
+
+#### Algoritmo di Ford-Fulkerson
+- ==Step 1. Inizializza== 
+	Poni $x_{ij} = 0$, per ogni $(i,j) \in A$ e $v= 0$.
+- ==Step 2. Determina Cammino Aumentante==
+	Dichiara il vertice $s$ non espanso con etichetta $[+s,\infty]$, mentre dichiara tutti gli altri vertici non etichettati (e non espansi).
+	- Se tutti i nodi etichettati sono gia' espansi, allora il flusso $v$ e' massimo (i.e., la soluzione $x$ e' ottima), quindi STOP.
+	- Se esiste un vertice $i$ etichettato ma non ancora espanso, provvedi a espanderlo:
+		- $(i)$ Per ogni vertice $j\in \Gamma_i$ non etichettato per cui $x_{ij}<u_{ij}$ assegna l'etichetta $[+i,\delta_j]$, dove $\delta_j = \text{min}\{u_{ij}-x_{ij},\delta_j\}$;
+		- $(ii)$ Per ogni vertice $j \in \Gamma^{-1}_i$ non etichettato per cui $x_{ij}>0$ assena l'etichetta $[-i,\delta_j]$, dove $\delta_j=\text{min}\{x_{ij},\delta_j\}$.
+		- $(iii)$ Se $t$ risulta etichettato torna a passo $(i)$.
+- ==Step 3. Aumenta Il Flusso $x$==
+	Sia $P$ il cammino aumentante dal vertiche $s$ al vertiche $t$ (ricostruito usando le etichette).
+	Per ogni $(i,j)\in P$:
+		- $(i)$ Se l'arco $(i,j)$ e' percorso nel suo verso originario (da $i$ a $j$): $x_{ij} = x_{ij} + \delta_t$
+		- $(ii)$ Se l'arco $(i,j)$ e' percorso nel verso contrario (da $j$ a $i$): $x_{ij} = x_{ij} - \delta_t$
+	Aggiorna il flusso $v = v + \delta_t$
+	Annulla tutte etichette e ritorna allo Step 2.
+
+Quando l'Algoritmo di Ford-Fulkerson termina, l'insieme dei vertici etichettati $S$ e quello dei vertici non etichettati $\bar{S}$ costituiscono un taglio, tale che il flusso ottimo $v^*$ e' pari alla capacita' degli archi del taglio:
+$$v^*=\sum_{i\in S}\sum_{j\in \bar{S}}u_{ij}$$
+Possiamo riscrivere l'Algoritmo di Ford-Fulkerson anche impiegando il concetto di ==grafo residuo==. In questo possiamo anche dimostrare il seguente teorema:
+Sia $x$ un flusso ammissibile in $G$ da $s$ a $t$ e sia $G(x)$ il corrispondente grafo residuo. Il flusso $x$ e' massimo se e solo se non esiste in $G(x)$ un cammino da $s$ a $t$.
+- ==Step 1. Inizializza==
+	Poni $x_{ij} = 0$, per ogni $(i,j)\in A$, e $v=0$
+- ==Step 2. Determina Cammino Aumentante==
+	Costruisci il grafo residuo $G(x)$.
+	Trova un cammino da $s$ a $t$ in $G(x)$.
+	Se non esiste un cammino da $s$ a $t$, allora il flusso $x$ e' massimo, quindi STOP.
+- ==Step 3. Aumenta il Flusso $x$==
+	Sia $P$ il cammino da $s$ a $t$ trovato e poni $\delta = \text{min}\{r_{ij}:(i,j)\in P\}$.
+	Per ogni $(i,j) \in P$:
+	- $(i)$ Se $(i,j)$ corrisponde all'arco $(i,j) \in A: x_{ij} = x_{ij} + \delta$
+	- $(ii)$ se $(i,j)$ corrisponde all'arco $(j,i)\in A: x_{ij} = x_{ij}- \delta$
+	
+	Aggiorna il flusso $v=v+\delta$.
+	Ritorna allo Step 2.
+
+  L’algoritmo di Ford-Fulkerson ha complessità $O(nmU$), perché: 
+  - ad ogni iterazione il flusso aumenta di $δ ≥ 1$ e il valore del flusso è limitato superiormente da $nU$;
+  - il calcolo di un cammino aumentante ha complessità $O(m)$
+
+#### Taglio s-t
+Esempio di taglio s-t
+![Esempio di taglio s-t](taglio_st.png)
+Teorema:
+Dato un flusso ammissibile $x$ pari a $v$, per ogni taglio s-t $(S,\bar{S})$ si ha:
+$$v=\sum_{(i,j)\in\Gamma(S,\bar{S})}x_{ij}-\sum_{(i,j)\in\Gamma(\bar{S},S)}x_{ij}$$
+(flusso attraverso il taglio)
+Teorema:
+Il valore $v$ di ogni flusso ammissibile $x$ in $G$ e' minore o uguale alla capacita' $u(S,\bar{S})$ di un qualunque taglio s-t. Ne segue che il valore del flusso massimo e' minore o uguale alla capacita' del taglio s-t di capacita' mimina.
+==Teorema (Max-Flow/Min-Cut)==
+Il flusso massimo da $s$ a $t$ in $G$ e' uguale alla capacita' del taglio s-t di capacita' minima.
