@@ -237,9 +237,9 @@ Sia $(x^*,x_A^*)$ la soluzione ottima del problema $P'$ di valore $x_{P'}$. Si p
 - $z_{P'}>0\implies$ il problema $P$ non ha una base ammissibile;
 - $z_{P'}=0$ e nessuna variabile artificiale e' base$\implies$ il problema $P$ ha una base ammissibile;
 - $z_{P'}=0$ e almeno una variabile artificiale e' in base$\implies$ il problema $P$ ha una base ammissibile, ma bisogna *estrarla*:
----
+##### Estrazione base
 Se $x_{P'}=0$ e una variabile artificiale e' in base, per generare una base senza variabili artificiali e' necessario farla uscire.
-Questo caso si verifica quando la soluzione e' ==degenere==,ossia una variabile in base ha valore nullo:
+Questo caso si verifica quando la soluzione e' ==degenere==, ossia una variabile in base ha valore nullo:
 ![Tableau di una soluzione degenere](tableau_degenere.png)
 se esiste un $y^j_i \ne 0$, allora possiamo ==pivotare== su questo coefficiente e la variabile $x_j$ entra in base al posto della variabile artificiale $x^A_h$.
 Se $y^j_i = 0$, per ogni $j=1,\dots,n$, allora possiamo eliminare dal tableau sia la riga $i$ che la colonna della variabile artificiale $x^A_h$.
