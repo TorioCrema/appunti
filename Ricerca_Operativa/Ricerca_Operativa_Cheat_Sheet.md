@@ -11,3 +11,38 @@
 - $b_j$ puo' essere $\le0$, quindi possiamo portare tutti i vincoli alla forma $\le0$
 - $wa_j-c_j \le0,\;\forall j$, usare il [Metodo Big M](Ricerca_Operativa#Metodo%20Big-M), pivotare su $\text{max}\{wa_j-c_j\}$
 - se $\exists\; b_j<0\land y_j>0$ se esiste un $b_j<0$, ma non possiamo pivotare perche' tutta la riga e' $>0\implies$ non esiste una soluzione ammissibile
+
+# Ottenere Problema Duale
+- La funzione obiettivo diventa $\text{max}$
+- I coefficienti $b$ dei vincoli primali diventano i costi delle variabili duali nella funzione obiettivo duale
+- Le righe della matrice dei vincoli $A$ del primale diventano le colonne nel duale (i vincoli passano da $Ax \le b,\;x\ge0$ a $wA\le c$)
+- I vincoli di segno del primale determinano il segno dei vincoli del duale (si inverte il segno da $\le$ a $\ge$ e viceversa)
+- I vincoli del primale deteminano i vincoli di segno del duale (se $Ax\le b \implies w\le0$)
+
+# Dimostrare ottimalita' della soluzione
+- Verificare i vincoli di segno, se non sono rispettati la soluzione non e' ottima.
+- Verificare i vincoli primali:
+	Se un vincolo primale e' verificato tramite la disuguaglianza allora la rispettiva variabile duale e' pari a $0$.
+- Scrivere il duale.
+- Dai valori delle variabili primali nella soluzione da controllare:
+	Se una variabile primale e' $\neq 0$ allora il rispettivo vincolo duale deve essere verificato tramite l'uguaglianza.
+- Tramite le precedenti informazioni e' possibile create un sistema di equazioni da cui ottenere il valore delle variabili duali
+- Controllare i vincoli duali con i valori ottenuti al punto precedente
+- Se tutti i vincoli sono rispettati allora la soluzione e' ottima (sia la primale che la duale, per il teorema della [dualita' forte](Ricerca_Operativa#Teorema%201%20(Dualita'%20forte)))
+
+# Branch and Bound LP Intera
+Dato un problema LP intero $P$ e il rispettivo tableau ottimo del suo rilassamento lineare:
+Scegliere una variabile non intera dalla soluzione fornita e generare i due nodi figli, che saranno uguali al rilassamento lineare, ma con un vincolo aggiuntivo in base alla variable scelta:
+- Primo figlio aggiunge il vincolo $x_i \le \lfloor x^*_i\rfloor$, dove $x^*_i$ e' il valore che la variabile $x_i$ assumeva nella soluzione ottima del rilassamento lineare
+- Secondo figlio aggiunge il vincolo $x_i \ge \lceil x^*_i\rceil$, dove $x^*_i$ e' il valore che la variabile $x_i$ assumeva nella soluzione ottima del rilassamento lineare
+
+Per risolvere i figli aggiungere la riga del vincolo al tableau ottimo fornito insieme alla colonna della variabile di slack, nel caso del vincolo $\ge$ invertire la disequazione.
+- Annullare il coefficiente della variabile selezionata nella riga appena aggiunta
+- A questo punto $b_i$ deve essere $< 0$, in caso contrario e' stato fatto un errore nei punti precedenti
+- Proseguire con il simplesso duale
+
+# Taglio di Gomory
+Dal tableau ottimo scegliere una variabile in base frazionaria e dalla rispettiva riga nel tableau generare un nuovo vincolo:
+- Per ogni coefficiente frazionario nella riga selezionata calcolare $y_i - \lfloor y_i\rfloor$ (compreso $b_i$)
+- Inserire $y_i - \lfloor y_i\rfloor$ nella nuova riga per ogni $y_i$ frazionario e $1$ per la nuova variabile di slack
+- La nuova $b_i$ e' $<0$ (perche' $b_i$ della riga selezionata e' sempre $>0$), si puo' qunidi procedere con il simplesso duale
