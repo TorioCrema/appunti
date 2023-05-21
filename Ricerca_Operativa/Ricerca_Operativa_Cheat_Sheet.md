@@ -45,4 +45,17 @@ Per risolvere i figli aggiungere la riga del vincolo al tableau ottimo fornito i
 Dal tableau ottimo scegliere una variabile in base frazionaria e dalla rispettiva riga nel tableau generare un nuovo vincolo:
 - Per ogni coefficiente frazionario nella riga selezionata calcolare $y_i - \lfloor y_i\rfloor$ (compreso $b_i$)
 - Inserire $y_i - \lfloor y_i\rfloor$ nella nuova riga per ogni $y_i$ frazionario e $1$ per la nuova variabile di slack
-- La nuova $b_i$ e' $<0$ (perche' $b_i$ della riga selezionata e' sempre $>0$), si puo' qunidi procedere con il simplesso duale
+- La nuova $b_i$ e' $<0$ (perche' $b_i$ della riga selezionata e' sempre $>0$), si puo' quindi procedere con il simplesso duale
+
+# Rilassamento Lagrangiano / Subgradiente
+- Per ogni vincolo rilassato aggiungere i coefficienti alla funzione obiettivo con segno invertito e moltiplicati per $\lambda_i$, non invertire $b_i$
+- Raccogliere le variabili primali nella funzione obiettivo che avra' la forma $(c_1 - a_i\lambda)x_1 + \dots + (c_n - a_i\lambda)x_n + \lambda$
+- Sostituire il valore di $\lambda$ con quello fornito
+- Trovare il valore ottimo delle variabili primali in base ai vincoli rimasti e la funzione obiettivo
+- Calcolare il subgradiente tramite la formula $s_i=b_i-a_ix_i-\dots-a_nx_n$
+- Si puo' osservare se il vincolo rilassato e' stato rispettato in base al segno del subgradiente ($=0$ rispettato tramite l'uguaglianza, se il vincolo rilassato era $\le$ e' rispettato se $s>0$, se il vincolo era $\ge$ e' rispettato se $s<0$)
+- Calcolare 
+	$$\theta=\frac{0.001\times z(\lambda)}{\lVert s\rVert_2^2}$$
+- Trovare il nuovo valore di $\lambda$:
+	- se il vincolo rilassato era $\le$ : $\lambda = \text{min}\{0,\; \lambda+\theta s\}$ (sempre $\le0$)
+	- se il vincolo rilassato era $\ge$: $\lambda = \text{max}\{0,\; \lambda+ \theta s\}$ (sempre $\ge0$)
