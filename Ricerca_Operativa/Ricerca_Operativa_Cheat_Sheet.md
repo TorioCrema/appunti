@@ -59,3 +59,4 @@ Dal tableau ottimo scegliere una variabile in base frazionaria e dalla rispettiv
 - Trovare il nuovo valore di $\lambda$:
 	- se il vincolo rilassato era $\le$ : $\lambda = \text{min}\{0,\; \lambda+\theta s\}$ (sempre $\le0$)
 	- se il vincolo rilassato era $\ge$: $\lambda = \text{max}\{0,\; \lambda+ \theta s\}$ (sempre $\ge0$)
+	- se il vincolo rilassaot era $=$: $\lambda = \lambda + \theta s$
