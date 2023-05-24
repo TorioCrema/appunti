@@ -54,9 +54,18 @@ Dal tableau ottimo scegliere una variabile in base frazionaria e dalla rispettiv
 - Trovare il valore ottimo delle variabili primali in base ai vincoli rimasti e la funzione obiettivo
 - Calcolare il subgradiente tramite la formula $s_i=b_i-a_ix_i-\dots-a_nx_n$
 - Si puo' osservare se il vincolo rilassato e' stato rispettato in base al segno del subgradiente ($=0$ rispettato tramite l'uguaglianza, se il vincolo rilassato era $\le$ e' rispettato se $s>0$, se il vincolo era $\ge$ e' rispettato se $s<0$)
-- Calcolare 
+- (Opzionale) Calcolare 
 	$$\theta=\frac{0.001\times z(\lambda)}{\lVert s\rVert_2^2}$$
 - Trovare il nuovo valore di $\lambda$:
 	- se il vincolo rilassato era $\le$ : $\lambda = \text{min}\{0,\; \lambda+\theta s\}$ (sempre $\le0$)
 	- se il vincolo rilassato era $\ge$: $\lambda = \text{max}\{0,\; \lambda+ \theta s\}$ (sempre $\ge0$)
 	- se il vincolo rilassaot era $=$: $\lambda = \lambda + \theta s$
+
+# Flusso Massimo
+- $(i)\rightarrow$ Disegnare il grafo residuo
+- $(ii)\rightarrow$ Se e' presente un percorso da origine a destinazione, aumentare il flusso per la capacita' massima del percorso, altrimenti il flusso e' massimo, torna al passo $(i)$
+
+# Flusso di costo minimo
+- $(i)\rightarrow$ [Individuare un flusso ammissibile](Ricerca_Operativa#Calcolo%20di%20un%20flusso%20ammissibile) (cioe' che soddisfa i $b_i$)
+- $(ii)\rightarrow$ Disegnare il grafo residuo
+- $(iii)\rightarrow$ Se e' presente un ciclo di costo negativo aumentare il flusso in quel ciclo per la capacita' residua minima e tornare al passo $(ii)$, altrimenti il flusso e' ottimo.
