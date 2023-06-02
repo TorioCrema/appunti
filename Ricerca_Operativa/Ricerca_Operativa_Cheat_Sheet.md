@@ -26,7 +26,7 @@
 - Scrivere il duale.
 - Dai valori delle variabili primali nella soluzione da controllare:
 	Se una variabile primale e' $\neq 0$ allora il rispettivo vincolo duale deve essere verificato tramite l'uguaglianza.
-- Tramite le precedenti informazioni e' possibile create un sistema di equazioni da cui ottenere il valore delle variabili duali
+- Tramite le precedenti informazioni e' possibile creare un sistema di equazioni da cui ottenere il valore delle variabili duali
 - Controllare i vincoli duali con i valori ottenuti al punto precedente
 - Se tutti i vincoli sono rispettati allora la soluzione e' ottima (sia la primale che la duale, per il teorema della [dualita' forte](Ricerca_Operativa#Teorema%201%20(Dualita'%20forte)))
 
@@ -44,12 +44,12 @@ Per risolvere i figli aggiungere la riga del vincolo al tableau ottimo fornito i
 # Taglio di Gomory
 Dal tableau ottimo scegliere una variabile in base frazionaria e dalla rispettiva riga nel tableau generare un nuovo vincolo:
 - Per ogni coefficiente frazionario nella riga selezionata calcolare $y_i - \lfloor y_i\rfloor$ (compreso $b_i$)
-- Inserire $y_i - \lfloor y_i\rfloor$ nella nuova riga per ogni $y_i$ frazionario e $1$ per la nuova variabile di slack
+- Inserire $-(y_i - \lfloor y_i\rfloor)$ nella nuova riga per ogni $y_i$ frazionario e $1$ per la nuova variabile di slack
 - La nuova $b_i$ e' $<0$ (perche' $b_i$ della riga selezionata e' sempre $>0$), si puo' quindi procedere con il simplesso duale
 
 # Rilassamento Lagrangiano / Subgradiente
 - Per ogni vincolo rilassato aggiungere i coefficienti alla funzione obiettivo con segno invertito e moltiplicati per $\lambda_i$, non invertire $b_i$
-- Raccogliere le variabili primali nella funzione obiettivo che avra' la forma $(c_1 - a_i\lambda)x_1 + \dots + (c_n - a_i\lambda)x_n + \lambda$
+- Raccogliere le variabili primali nella funzione obiettivo che avra' la forma $(c_1 - a_i\lambda)x_1 + \dots + (c_n - a_i\lambda)x_n + b_i\lambda$
 - Sostituire il valore di $\lambda$ con quello fornito
 - Trovare il valore ottimo delle variabili primali in base ai vincoli rimasti e la funzione obiettivo
 - Calcolare il subgradiente tramite la formula $s_i=b_i-a_ix_i-\dots-a_nx_n$
