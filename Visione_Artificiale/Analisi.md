@@ -15,7 +15,7 @@ $$F^*=\{p|p=[x,y]^T,\;Img[y,x]=0\}$$
 
 Le metriche discrete piu' comuni sono basate su:
 - distanza $d_4$ (chiamata anche City-block, Manhattan, $L_1$)
-- distanza $d_S$ (chiamata anche Chessboard, Chebyshev, $L_\infty$)
+- distanza $d_8$ (chiamata anche Chessboard, Chebyshev, $L_\infty$)
 
 I vicini di un pixel $p$ sono quelli aventi distanza unitaria da $p$
 Un percorso di lunghezza $n$ da $p$ a $q$ e' una sequenza di pixel $\{p_0=p,p_1,\dots,p_n=q\}$ tale che, in accordo con la metrica scelta, $p_i$ e' un vicino di $p_{i+1},\; 0\le i<n$.

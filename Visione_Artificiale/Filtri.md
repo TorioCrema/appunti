@@ -103,7 +103,7 @@ $$F'[i,j]=F[-i,-j]$$
 Se il filtro e' simmetrico rispetto all'origine, $I*F=I\otimes F$
 Proprieta' algebriche **comuni a entrambe**:
 - Proprieta' distributiva rispetto all'addizione:
-	$$\begin{array}I\otimes(F+G)=(I\otimes F)+(I\otimes G)\\
+	$$\begin{array}{}I \otimes (F+G)=(I\otimes F)+(I\otimes G)\\
 	I*(F+G)=(I*F)+(I*G){}\end{array}$$
 - Proprieta' associativa rispetto a un fattore scalare:
 	$$\begin{array}{}(\alpha\times I)\otimes F=\alpha\times(I\otimes F)\\(\alpha\times I)*F=\alpha\times(I*F)\end{array}$$
@@ -305,7 +305,7 @@ print(f'Gradiente in ({x},{y}): ∇x={dx[y,x]:.1f}, ∇y={dy[y,x]:.1f}, ' +
 
 Analizzando l'orientazione del gradiente, si puo' osservare che il bordo di un immagine e' ortogonale al gradiente.
 
-#### Visualizzare module e angolo del gradiente in OpenCV
+#### Visualizzare modulo e angolo del gradiente in OpenCV
 
 ```python
 img = cv.imread('esempi/cat.jpg', flags=cv.IMREAD_GRAYSCALE)
