@@ -1,11 +1,12 @@
 # Immagini Grayscale
-Matrici di "punti di luce", il valore dei pixel e' la quantita' di luce. Maggiore e' il valore piu' alta e' la luminosita' del pixel. Coordinate cartesiane (x, y). Il pixel (0,0) e' quello in alto a sinistra dell'immagine, l'asse $y$ cresce verso il basso, l'ase $x$ cresce verso sinistra.
+Matrici di "punti di luce", il valore dei pixel e' la quantita' di luce. Maggiore e' il valore piu' alta e' la luminosita' del pixel. Coordinate cartesiane $(x, y)$. Il pixel $(0,0)$ e' quello in alto a sinistra dell'immagine, l'asse $y$ cresce verso il basso, l'ase $x$ cresce verso sinistra.
 
 # Immagini a Colori
 Tensori 3D. Ogni canale contiene la luminosita' di un colore primario (Red, Green, Blue). Sommando la luminosita' dei tre colori primari si ottengono i vari colori.
 **Modello additivo**:
 - I colori sono ottenuti mediante combinazione dei 3 colori primari Red, Green, Blue
 - Il piu' utilizzato in informatica per la semplicita' con cui si generano i colori
+
 **Spazio RGB**:
 - Ogni colore puo' essere considerato come *un punto in uno spazio a tre dimensioni*
 - Non idoneo per il raggruppamento spaziale di colori percepiti come simili dall'uomo
@@ -26,7 +27,7 @@ Vantaggi:
 
 Lo Hue e' un angolo: rosso primario a $0^\circ$, verde primario a $120^\circ$ e blu primario a $240^\circ$.
 L'asse verticale al centro comprende i grigi, dal nero (luminosita' $0$) al bianco (luminosita' $1$).
-I colori primari (RGB) e secondari (CMY) si trovano attrono al cilindro con saturazione $1$.
+I colori primari (RGB) e secondari (CMY) si trovano attorno al cilindro con saturazione $1$.
 - In HSV questi colori saturi hanno luminosita' $1$.
 - In HSL invece hanno luminosita' $0.5$
 
@@ -60,7 +61,7 @@ Su piu' immagini: $I[y,x]=f(I_1[y,x],I_2[y,x],\dots)$
 ## Variazione luminosita' e contrasto
 
 Tipica funzione: $f(v)=\alpha\times v + \beta$
-- $\alpha$ controlla in contrasto, $\beta$ la luminosita'
+- $\alpha$ controlla il contrasto, $\beta$ la luminosita'
 - Valori di output forzati in $[0,255]$
 
 Funzione non lineare: Gamma correction
@@ -160,7 +161,7 @@ roi |= sprite
 
 Combinazione fra uno sfondo (RGB) e un'immagine (RGB) con abbinato un valore di "trasparenza" per cascun pixel (fra $0$ e $1$)
 $$I[y,x]=f(I_1[y,x],I_2[y,x],I_3[y,x])$$
-$$f(p_1,p_3,a)=p_1\times(1-a)+p_2\times a$$
+$$f(p_1,p_2,a)=p_1\times(1-a)+p_2\times a$$
 ```python
 img1 = cv.imread('esempi/hill.jpg')  
 img2 = cv.imread('esempi/study.png')  
@@ -209,7 +210,7 @@ res = cv.adaptiveThreshold(img, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY
 
 ## Contrast stetching
 
-Espansione dei livelli di grigioper aumentare il contrasto
+Espansione dei livelli di grigio per aumentare il contrasto
 - Si puo' ottenere con un semplice mapping lineare:
 	$$f(I[y,x])=255\times\frac{I[y,x]-\alpha}{\beta-\alpha}$$
 - I due parametri $\alpha$ e $\beta$ possono essere il minimo e massimo livello di grigio dell'immagine
@@ -300,11 +301,11 @@ Problemi da risolvere:
 ### Gestire le coordinate fuori dall'immagine
 
 Gli approcci piu' comuni per estrapolare il valore (con denominazione OpenCV):
-- Colore di background costante (cv.BORDER_CONSTANT)
-- Copia del pixel piu' vicino (cv.BORDER_REPLICATE)
-- Riflessione dei pixel dell'immagine (cv.BORDER_REFLECT)  
-- Replica dell'immagine (cv.BORDER_WRAP)  
-- Nessuna modifica: lascia il valore già presente nell'immagine destinazione (cv.BORDER_TRANSPARENT)
+- Colore di background costante (`cv.BORDER_CONSTANT`)
+- Copia del pixel piu' vicino (`cv.BORDER_REPLICATE`)
+- Riflessione dei pixel dell'immagine (`cv.BORDER_REFLECT`)  
+- Replica dell'immagine (`cv.BORDER_WRAP`)
+- Nessuna modifica: lascia il valore già presente nell'immagine destinazione (`cv.BORDER_TRANSPARENT`)
 
 ### Stimare un valore per il pixel da coordinate non intere
 

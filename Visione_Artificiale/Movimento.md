@@ -5,7 +5,7 @@
 	- Video sorveglianza e analisi video
 	- Navigazione e guida autonoma
 	- Osservazione di animali nel loro ambiente
-- Risultato atteso: per ogni frame una immagine binaria in cui i pixel degli oggetti in movimento sonon marcati come foreground, mentre tutto il resto e' marcato come background.
+- Risultato atteso: per ogni frame una immagine binaria in cui i pixel degli oggetti in movimento sono marcati come foreground, mentre tutto il resto e' marcato come background.
 
 ## Approccio generale
 
@@ -126,7 +126,7 @@ Obiettivo: associare oggetti in movimento in frame consecutivi del video, ovvero
 
 Mean-shift e' un algoritmo iterativo per determinare i massimi locali di una funzione di densita' di probabilita' a partire da un insieme di campioni.
 Puo' essere facilmente applicato al tracking di un oggetto:
-- Sia $W$ la regione che nel frame precedente conteneva l'oggetto;'
+- Sia $W$ la regione che nel frame precedente conteneva l'oggetto;
 - Sia $C$ una mappa di confidenza che indica, per ogni pixel del nuovo frame, la probabilita' che tale pixel appartenga all'oggetto;
 - Ad ogni iterazione si calcola la media pesata di $C$ in $W$ e si sposta $W$ di conseguenza;
 - Ci si ferma quando la media converge o si raggiunge un massimo numero di iterazioni.

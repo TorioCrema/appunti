@@ -149,7 +149,7 @@ list_img_blurred = [cv.GaussianBlur(img, (m,m), 0) for m in range(3,17,2)]
 
 ## Sharpening
 
-I filtri precedenti, oltre all'effetto "blur", posono essere impiegati per ottenere un risultato opposto: una sorta di "miglioramento dell amessa a fuoco", chiamato sharpening.
+I filtri precedenti, oltre all'effetto "blur", posono essere impiegati per ottenere un risultato opposto: una sorta di "miglioramento della messa a fuoco", chiamato sharpening.
 Si procede calcolando un'immagine "blurred" mediante ==convoluzione con un flitro $F_b$ normalizzato== (es. box filter o gaussiano) e sottraendola all'originale: $M=I-I*F_b$
 L'immagine $M$ (pixel con valori interi) e' infine sommata all'immagine originale, dopo essere stata moltiplicata per un parametro $k$ che controlla l'intensita' dell'effetto: $I'=I+k\times M$
 
@@ -305,7 +305,7 @@ print(f'Gradiente in ({x},{y}): ∇x={dx[y,x]:.1f}, ∇y={dy[y,x]:.1f}, ' +
 
 Analizzando l'orientazione del gradiente, si puo' osservare che il bordo di un immagine e' ortogonale al gradiente.
 
-#### Visualizzare module e angolo del gradiente in OpenCV
+#### Visualizzare modulo e angolo del gradiente in OpenCV
 
 ```python
 img = cv.imread('esempi/cat.jpg', flags=cv.IMREAD_GRAYSCALE)
@@ -392,7 +392,7 @@ $$\frac{\partial^2f(x,y)}{\partial y^2}\approx f(x,y+1)-2f(x,y)+f(x,y+1)\implies
 
 $$\nabla f(x,y)=\frac{\partial^2f(x,y)}{\partial x^2}+\frac{\partial^2f(x,y)}{\partial y^2}$$
 Il Lapliaciano e' definito come la somma delle due derivate parziali seconde in un punto.
-Il un'immagine $I$, il presenza di un bordo sufficientemente contrastato, il laplaciano $\Delta I$ e':
+Il un'immagine $I$, in presenza di un bordo sufficientemente contrastato, il laplaciano $\Delta I$ e':
 - $0$ lontano dal bordo;
 - $>0$ vicino al bordo (dal lato dove pixel piu' scuri diventano piu' chiari muovendosi verso il bordo);
 - $<0$ vicino al bordo (dal lato opposto);

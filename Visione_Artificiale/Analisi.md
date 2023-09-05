@@ -7,7 +7,7 @@ Considera immagini binarie, ossia con due soli colori:
 - background (valore $0$)
 - foreground (in genere $255$ o diverso da $0$)
 
-Sia $F$ l'insieme di tutti i pixel di foreground e $F*$ l'insieme di quelli di background di un'immagine $Img$:
+Sia $F$ l'insieme di tutti i pixel di foreground e $F^*$ l'insieme di quelli di background di un'immagine $Img$:
 $$F=\{p|p=[x,y]^T,\;Img[y,x]\neq0\}$$
 $$F^*=\{p|p=[x,y]^T,\;Img[y,x]=0\}$$
 
